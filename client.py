@@ -80,21 +80,21 @@ def graphMachine():
     for i in range(0,11):
         graph.append([' '] * len(averageTimeList))
         
-    # populate "D list with plot points for graph"
+    # populate 2D list with plot points for graph"
     count=0  
     for i in averageTimeList:
         temp = i * 100
         temp = int(round(temp, 1))
-        graph[10-temp][x] = '*'
+        graph[10-temp][count] = '*'
         count += 1
     
     # generate graph cli output
     count=10    
     for row in graph:
-        if x == 10:
-            win.addstr(str(x) + "0|")
+        if count == 10:
+            win.addstr(str(count) + "0|")
         else:
-            win.addstr(" " + str(x) + "0|")
+            win.addstr(" " + str(count) + "0|")
             
         for col in row:
             win.addstr(str(col))
@@ -107,14 +107,17 @@ def graphMachine():
         win.addstr("-")
     win.addstr("\n")
 
-# main 
+# main
+
 while x != numMessages:
     # time how long it takes to get a response after send a message to the server
     start = timer()
     s.send(bytes(str(x), 'UTF-8'))
     data = s.recv(BUFFER_SIZE)
     end = timer()
-
+    
+    curses.cbreak()
+    
     # write output to cli
     output(data, (end - start))
     x += 1
@@ -124,6 +127,9 @@ while x != numMessages:
 s.close()
 
 print ("Closed connection.")
+
+# close curses
+curses.endwin()
 
 
     
