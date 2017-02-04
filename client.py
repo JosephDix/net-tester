@@ -19,8 +19,8 @@ s.connect((TCP_IP, TCP_PORT))
 win = curses.initscr()
 
 x = 1            # init x
-numMessages = 1000 # -1 is inifinite
-pauseTime = 0.2   # in seconds
+numMessages = 300 # -1 is inifinite
+pauseTime = 0.1  # in seconds
 
 # set scope for determining rolling average response time
 avScope = 100
@@ -75,18 +75,21 @@ def lowestRes (time):
 
 # figure this one out
 def graphMachine():
+    # create 2D list type object
     graph = []
-    for x in range(0,11):
+    for i in range(0,11):
         graph.append([' '] * len(averageTimeList))
         
-    x=0  
+    # populate "D list with plot points for graph"
+    count=0  
     for i in averageTimeList:
         temp = i * 100
         temp = int(round(temp, 1))
         graph[10-temp][x] = '*'
-        x += 1
+        count += 1
     
-    x=10    
+    # generate graph cli output
+    count=10    
     for row in graph:
         if x == 10:
             win.addstr(str(x) + "0|")
@@ -96,8 +99,13 @@ def graphMachine():
         for col in row:
             win.addstr(str(col))
         win.addstr("\n")
-        x -= 1    
-    win.addstr("    ----------------------------------------------------------------------------------------------------\n")
+        count -= 1
+        
+    # finish off
+    win.addstr("    ")
+    for i in range(avScope):
+        win.addstr("-")
+    win.addstr("\n")
 
 # main 
 while x != numMessages:
