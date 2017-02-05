@@ -16,6 +16,7 @@ ID = "Test"
 # connect to server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((SRV_IP, TCP_PORT))
+s.settimeout(2.0)
 
 # invoke curses
 win = curses.initscr()
@@ -171,14 +172,19 @@ while x != numMessages:
     
     start = timer()
     usock.sendto(bytes(str(x), 'UTF-8'), (SRV_IP, UDP_PORT))
-    data = s.recv(BUFFER_SIZE)
-    end = timer()
+    
+    try:
+        data = s.recv(BUFFER_SIZE)
+        end = timer()
+    except socket.timeout:
+        end = timer()        
     
     if data.decode('UTF-8') == str(x):
         output(data, (end - start)) 
     else:
         output(-1, -1)
         errors += 1
+        x -= 1
     
     # write output to cli
     
