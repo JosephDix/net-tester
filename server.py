@@ -32,7 +32,7 @@ class ClientThread(Thread):
 
         while True:
             self.udata, self.addr = self.uconn.recvfrom(BUFFER_SIZE)
-            if not self.udata: break
+            if self.udata.decode == "CLOSE": break
             print "Recieved data from " + self.addr + ":" + str(self.port) + " :", self.udata
             self.tconn.send(self.udata)  # echo
 

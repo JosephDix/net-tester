@@ -146,6 +146,7 @@ while x != numMessages:
     x += 1
     sleep(pauseTime)
 
+usock.sendto(bytes("CLOSE", 'UTF-8'), (UDP_IP, UDP_PORT))      
 # close connection to server
 usock.close()
 s.close()
