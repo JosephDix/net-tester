@@ -27,13 +27,13 @@ class ClientThread(Thread):
 
     def run(self):
         self.data = self.tconn.recv(BUFFER_SIZE)
-        print "Received data from " + self.ip + ":" + str(self.port) + " :", self.data
+        print "Received data from " + self.ip + ":" + str(self.port) + " - ", self.data
         self.tconn.send(str(self.UDP_PORT))  # echo
 
         while True:
             self.udata, self.addr = self.uconn.recvfrom(BUFFER_SIZE)
             if self.udata.decode == "CLOSE": break
-            print "Recieved data from " + self.addr + ":" + str(self.port) + " :", self.udata
+            print "Recieved data from " + self.addr + ":" + str(self.port) + " - " + self.udata
             self.tconn.send(self.udata)  # echo
 
         self.uconn.close()
