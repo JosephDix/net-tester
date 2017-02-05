@@ -35,6 +35,9 @@ averageTimeList = []
 high = 0
 low = 1
 
+# error counts
+errors = 0
+
 # output function
 def output (data, time):
     global x
@@ -45,18 +48,25 @@ def output (data, time):
         highest = highestRes(time)
         lowest = lowestRes(time)
         graphMachine()
+        message = data.decode('UTF-8')
     else:
         err = -1
         averageMachine(err)
         graphMachine()
+        message = 'error'
+        response = 'error'
+        highest = str(high)
+        lowest = str(low)
+    
      
     win.addstr("\n")
     win.addstr("Connected to: " + SRV_IP + "\n")
-    win.addstr("Message num: " + data.decode('UTF-8') + "\n")
+    win.addstr("Message num: " + message + "\n")
     win.addstr("Response time: " + str(time) + "\n")
     win.addstr("Average: " + response + "\n")
     win.addstr("Highest: " + highest + "\n")
     win.addstr("Lowest: " + lowest + "\n")
+    win.addstr("Errors: " + str(errors) + "\n")
     win.addstr("\n")
     win.addstr("Press ESC to stop.\n")
     win.refresh()
@@ -159,6 +169,7 @@ while x != numMessages:
         output(data, (end - start)) 
     else:
         output(-1, -1)
+        errors += 1
     
     # write output to cli
     
