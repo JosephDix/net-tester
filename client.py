@@ -7,9 +7,12 @@ from timeit import default_timer as timer
 from time import sleep
 
 # set up tcp connection settings
+UDP_IP = 'xxx.xxx.xxx.xxx'
 TCP_IP = 'xxx.xxx.xxx.xxx' #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
+
+ID = "Test"
 
 # connect to server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,6 +28,8 @@ pauseTime = 0.1  # in seconds
 
 # set scope for determining rolling average response time
 avScope = 100
+
+# initilise list used for calculating average response time
 averageTimeList = []
 
 # highest and lowest response times
@@ -97,6 +102,8 @@ def graphMachine():
         count += 1
     
     # generate graph cli output
+    
+    win.addstr("Response time in ms.\n\n")
     count=10    
     for row in graph:
         if count == 10:
@@ -117,10 +124,22 @@ def graphMachine():
 
 # main
 
+
+s.send(bytes(ID, 'UTF-8'))
+data = s.recv(BUFFER_SIZE)
+UDP_PORT = int(data)
+print(UDP_PORT)
+
+usock = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+print("UDP connection open")
+
 while x != numMessages:
     # time how long it takes to get a response after send a message to the server
     start = timer()
-    s.send(bytes(str(x), 'UTF-8'))
+    #s.send(bytes(str(x), 'UTF-8'))
+    print("Sending...")
+    usock.sendto(bytes(str(x), 'UTF-8'), (UDP_IP, UDP_PORT))
     data = s.recv(BUFFER_SIZE)
     end = timer()
     
@@ -130,6 +149,7 @@ while x != numMessages:
     sleep(pauseTime)
 
 # close connection to server
+usock.close()
 s.close()
 
 print ("Closed connection.")
