@@ -7,8 +7,7 @@ from timeit import default_timer as timer
 from time import sleep
 
 # set up tcp connection settings
-UDP_IP = '127.0.0.1'
-TCP_IP = '127.0.0.1' #change this
+SRV_IP = '127.0.0.1' #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
@@ -16,15 +15,15 @@ ID = "Test"
 
 # connect to server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
+s.connect((SRV_IP, TCP_PORT))
 
 # invoke curses
 win = curses.initscr()
 win.nodelay(1)
 
 x = 1            # init x
-numMessages = 100 # -1 is inifinite
-pauseTime = 0.1  # in seconds
+numMessages = -1 # -1 is inifinite
+pauseTime = 0  # in seconds
 
 # set scope for determining rolling average response time
 avScope = 100
@@ -39,13 +38,20 @@ low = 1
 # output function
 def output (data, time):
     global x
+    err = 0
     win.clear()
-    response = averageMachine(time)
-    highest = highestRes(time)
-    lowest = lowestRes(time)
-    graphMachine() 
+    if data != -1 and time != -1:
+        response = averageMachine(time)
+        highest = highestRes(time)
+        lowest = lowestRes(time)
+        graphMachine()
+    else:
+        err = -1
+        averageMachine(err)
+        graphMachine()
+     
     win.addstr("\n")
-    win.addstr("Connected to: " + TCP_IP + "\n")
+    win.addstr("Connected to: " + SRV_IP + "\n")
     win.addstr("Message num: " + data.decode('UTF-8') + "\n")
     win.addstr("Response time: " + str(time) + "\n")
     win.addstr("Average: " + response + "\n")
@@ -62,6 +68,8 @@ def output (data, time):
 # get the rolling average time for a response
 def averageMachine (time):
     time = float("%.6f"%time)
+    
+    
     if len(averageTimeList) <= avScope:
         averageTimeList.append(time)
     else:
@@ -98,7 +106,13 @@ def graphMachine():
     for i in averageTimeList:
         temp = i * 100
         temp = int(round(temp, 1))
-        graph[10-temp][count] = '*'
+        
+        if i != -1:
+            graph[10-temp][count] = '*'
+        else: 
+           for i in range(0,11):
+              graph[i][count] = '#'
+        
         count += 1
     
     # generate graph cli output
@@ -137,16 +151,21 @@ while x != numMessages:
     # time how long it takes to get a response after send a message to the server
     
     start = timer()
-    usock.sendto(bytes(str(x), 'UTF-8'), (UDP_IP, UDP_PORT))
+    usock.sendto(bytes(str(x), 'UTF-8'), (SRV_IP, UDP_PORT))
     data = s.recv(BUFFER_SIZE)
     end = timer()
     
+    if data.decode('UTF-8') == str(x):
+        output(data, (end - start)) 
+    else:
+        output(-1, -1)
+    
     # write output to cli
-    output(data, (end - start))
+    
     x += 1
     sleep(pauseTime)
 
-usock.sendto(bytes("CLOSE", 'UTF-8'), (UDP_IP, UDP_PORT))      
+usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
 # close connection to server
 usock.close()
 s.close()
