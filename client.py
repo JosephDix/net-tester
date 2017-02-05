@@ -17,9 +17,10 @@ s.connect((TCP_IP, TCP_PORT))
 
 # invoke curses
 win = curses.initscr()
+win.nodelay(1)
 
 x = 1            # init x
-numMessages = 300 # -1 is inifinite
+numMessages = 100 # -1 is inifinite
 pauseTime = 0.1  # in seconds
 
 # set scope for determining rolling average response time
@@ -44,7 +45,14 @@ def output (data, time):
     win.addstr("Average: " + response + "\n")
     win.addstr("Highest: " + highest + "\n")
     win.addstr("Lowest: " + lowest + "\n")
+    win.addstr("\n")
+    win.addstr("Press ESC to stop.\n")
     win.refresh()
+    
+    if win.getch() == 27:
+        curses.endwin()
+        sys.exit()
+    
 
 # get the rolling average time for a response
 def averageMachine (time):
@@ -115,8 +123,6 @@ while x != numMessages:
     s.send(bytes(str(x), 'UTF-8'))
     data = s.recv(BUFFER_SIZE)
     end = timer()
-    
-    curses.cbreak()
     
     # write output to cli
     output(data, (end - start))
