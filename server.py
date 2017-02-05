@@ -30,25 +30,25 @@ class ClientThread(Thread):
         print "Received data from " + self.ip + ":" + str(self.port) + " :", self.data
         self.tconn.send(str(self.UDP_PORT))  # echo
 
-        while True :
-            self.data, self.addr = self.uconn.recvfrom(BUFFER_SIZE)
-            if not self.data: break
-            print "Recieved data from " + self.ip + ":" + str(self.port) + " :", self.data
-            self.tconn.send(self.data)  # echo
+        while True:
+            self.udata, self.addr = self.uconn.recvfrom(BUFFER_SIZE)
+            if not self.udata: break
+            print "Recieved data from " + self.addr + ":" + str(self.port) + " :", self.udata
+            self.tconn.send(self.udata)  # echo
 
         self.uconn.close()
         self.tconn.close()
         print "Connection from " + self.ip + ":" + str(self.port) + " closed."
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((TCP_IP, TCP_PORT))
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.bind((TCP_IP, TCP_PORT))
 threads = []
 
 while True:
-    s.listen(5)
+    sock.listen(5)
     print "Waiting for connections on " + str(TCP_PORT)
-    (conn, (ip,port)) = s.accept()
+    (conn, (ip,port)) = sock.accept()
     newthread = ClientThread(conn,ip,port)
     newthread.start()
     threads.append(newthread)

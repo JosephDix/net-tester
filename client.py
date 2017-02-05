@@ -7,8 +7,8 @@ from timeit import default_timer as timer
 from time import sleep
 
 # set up tcp connection settings
-UDP_IP = 'xxx.xxx.xxx.xxx'
-TCP_IP = 'xxx.xxx.xxx.xxx' #change this
+UDP_IP = '127.0.0.1'
+TCP_IP = '127.0.0.1' #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
@@ -38,6 +38,7 @@ low = 1
 
 # output function
 def output (data, time):
+    global x
     win.clear()
     response = averageMachine(time)
     highest = highestRes(time)
@@ -56,8 +57,7 @@ def output (data, time):
     
     if win.getch() == 27:
         curses.endwin()
-        sys.exit()
-    
+        x = numMessages-1
 
 # get the rolling average time for a response
 def averageMachine (time):
@@ -132,13 +132,11 @@ print(UDP_PORT)
 
 usock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
-print("UDP connection open")
 
 while x != numMessages:
     # time how long it takes to get a response after send a message to the server
+    
     start = timer()
-    #s.send(bytes(str(x), 'UTF-8'))
-    print("Sending...")
     usock.sendto(bytes(str(x), 'UTF-8'), (UDP_IP, UDP_PORT))
     data = s.recv(BUFFER_SIZE)
     end = timer()
