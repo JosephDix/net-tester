@@ -32,8 +32,8 @@ class ClientThread(Thread):
 
         while True:
             self.udata, self.addr = self.uconn.recvfrom(BUFFER_SIZE)
-            if self.udata.decode == "CLOSE": break
-            print "Recieved data from " + self.addr + ":" + str(self.port) + " - " + self.udata
+            if self.udata.decode('UTF-8') == "CLOSE": break
+            print "Recieved data from " + self.addr[0] + ":" + str(self.addr[1]) + " - " + self.udata.decode('UTF-8')
             self.tconn.send(self.udata)  # echo
 
         self.uconn.close()
