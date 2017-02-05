@@ -19,6 +19,9 @@ s.connect((SRV_IP, TCP_PORT))
 
 # invoke curses
 win = curses.initscr()
+curses.start_color()
+curses.use_default_colors()
+curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 win.nodelay(1)
 
 x = 1            # init x
@@ -117,6 +120,9 @@ def graphMachine():
         temp = i * 100
         temp = int(round(temp, 1))
         
+        if temp > 10:
+            temp = 10
+        
         if i != -1:
             graph[10-temp][count] = '*'
         else: 
@@ -136,7 +142,10 @@ def graphMachine():
             win.addstr(" " + str(count) + "0|")
             
         for col in row:
-            win.addstr(str(col))
+            if col != '#':
+                win.addstr(str(col))
+            else:
+                win.addstr(str(col), curses.color_pair(1))
         win.addstr("\n")
         count -= 1
         
