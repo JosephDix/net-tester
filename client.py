@@ -47,6 +47,8 @@ def output (data, time):
     global x
     err = 0
     win.clear()
+    
+    # handle error event
     if data != -1 and time != -1:
         response = averageMachine(time)
         highest = highestRes(time)
@@ -62,7 +64,7 @@ def output (data, time):
         highest = str(high)
         lowest = str(low)
     
-     
+    # write infor to cli
     win.addstr("\n")
     win.addstr("Connected to: " + SRV_IP + "\n")
     win.addstr("Message num: " + message + "\n")
@@ -75,6 +77,7 @@ def output (data, time):
     win.addstr("Press ESC to stop.\n")
     win.refresh()
     
+    # press escape key to stop app
     if win.getch() == 27:
         curses.endwin()
         x = numMessages-1
@@ -173,11 +176,14 @@ while x != numMessages:
     start = timer()
     usock.sendto(bytes(str(x), 'UTF-8'), (SRV_IP, UDP_PORT))
     
+    # try to receive a response packet from server
     try:
         data = s.recv(BUFFER_SIZE)
         end = timer()
+    # if no response in defined timeout, handle accordingly
     except socket.timeout:
-        end = timer()        
+        end = timer()
+        data = b'0'
     
     if data.decode('UTF-8') == str(x):
         output(data, (end - start)) 
