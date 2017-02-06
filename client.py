@@ -25,9 +25,9 @@ curses.use_default_colors()
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 win.nodelay(1)
 
-x = 1            # init x
-numMessages = -1 # -1 is inifinite
-pauseTime = 0  # in seconds
+iter = 1            # init iter
+numMessages = -1 # sets how many loops to do, -1 is inifinite
+pauseTime = 0.1  # in seconds, sets rate at which client polls server
 
 # set scope for determining rolling average response time
 avScope = 100
@@ -44,7 +44,7 @@ errors = 0
 
 # output function
 def output (data, time):
-    global x
+    global iter
     err = 0
     win.clear()
     
@@ -80,7 +80,7 @@ def output (data, time):
     # press escape key to stop app
     if win.getch() == 27:
         curses.endwin()
-        x = numMessages-1
+        iter = numMessages-1
 
 # get the rolling average time for a response
 def averageMachine (time):
@@ -170,11 +170,11 @@ print(UDP_PORT)
 usock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
-while x != numMessages:
+while iter != numMessages:
     # time how long it takes to get a response after send a message to the server
     
     start = timer()
-    usock.sendto(bytes(str(x), 'UTF-8'), (SRV_IP, UDP_PORT))
+    usock.sendto(bytes(str(iter), 'UTF-8'), (SRV_IP, UDP_PORT))
     
     # try to receive a response packet from server
     try:
@@ -185,16 +185,16 @@ while x != numMessages:
         end = timer()
         data = b'0'
     
-    if data.decode('UTF-8') == str(x):
+    if data.decode('UTF-8') == str(iter):
         output(data, (end - start)) 
     else:
         output(-1, -1)
         errors += 1
-        x -= 1
+        iter -= 1
     
     # write output to cli
     
-    x += 1
+    iter += 1
     sleep(pauseTime)
 
 usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
