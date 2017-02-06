@@ -152,7 +152,7 @@ def graphMachine():
         
     # finish off
     win.addstr("    ")
-    for i in range(avScope):
+    for i in range(avScope+1):
         win.addstr("-")
     win.addstr("\n")
 
