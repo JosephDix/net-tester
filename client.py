@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 from time import sleep
 
 # set up tcp connection settings
-SRV_IP = '127.0.0.1' #change this
+SRV_IP = "127.0.0.1" #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
@@ -25,13 +25,13 @@ def output (data, time):
         highest = highestRes(time)
         lowest = lowestRes(time)
         graphMachine()
-        message = data.decode('UTF-8')
+        message = data.decode("UTF-8")
     else:
         err = -1
         averageMachine(err)
         graphMachine()
-        message = 'error'
-        response = 'error'
+        message = "error"
+        response = "error"
         highest = str(high)
         lowest = str(low)
     
@@ -87,7 +87,7 @@ def graphMachine():
     # create 2D list type object
     graph = []
     for i in range(0,11):
-        graph.append([' '] * len(averageTimeList))
+        graph.append([" "] * len(averageTimeList))
         
     # populate 2D list with plot points for graph"
     count=0  
@@ -99,10 +99,10 @@ def graphMachine():
             temp = 10
         
         if i != -1:
-            graph[10-temp][count] = '*'
+            graph[10-temp][count] = "*"
         else: 
            for i in range(0,11):
-              graph[i][count] = '#'
+              graph[i][count] = "#"
         
         count += 1
     
@@ -117,7 +117,7 @@ def graphMachine():
             win.addstr(" " + str(count) + "0|")
             
         for col in row:
-            if col != '#':
+            if col != "#":
                 win.addstr(str(col))
             else:
                 win.addstr(str(col), curses.color_pair(1))
@@ -165,7 +165,7 @@ def main():
     errors = 0
 
 
-    s.send(bytes(ID, 'UTF-8'))
+    s.send(bytes(ID, "UTF-8"))
     data = s.recv(BUFFER_SIZE)
     UDP_PORT = int(data)
     print(UDP_PORT)
@@ -177,7 +177,7 @@ def main():
         # time how long it takes to get a response after send a message to the server
     
         start = timer()
-        usock.sendto(bytes(str(iter), 'UTF-8'), (SRV_IP, UDP_PORT))
+        usock.sendto(bytes(str(iter), "UTF-8"), (SRV_IP, UDP_PORT))
     
         # try to receive a response packet from server
         try:
@@ -188,7 +188,7 @@ def main():
             end = timer()
             data = b'0'
         
-        if data.decode('UTF-8') == str(iter):
+        if data.decode("UTF-8") == str(iter):
             output(data, (end - start)) 
         else:
             output(-1, -1)
@@ -200,7 +200,7 @@ def main():
         iter += 1
         sleep(pauseTime)
 
-    usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
+    usock.sendto(bytes("CLOSE", "UTF-8"), (SRV_IP, UDP_PORT))      
     # close connection to server
     usock.close()
     s.close()
