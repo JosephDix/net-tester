@@ -1,6 +1,6 @@
 #!usr/bin/env python
 
-import curses
+#import curses
 import socket
 import sys
 from timeit import default_timer as timer
@@ -12,35 +12,6 @@ TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
 ID = "Test"
-
-# connect to server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((SRV_IP, TCP_PORT))
-s.settimeout(2.0)
-
-# invoke curses
-win = curses.initscr()
-curses.start_color()
-curses.use_default_colors()
-curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-win.nodelay(1)
-
-iter = 1            # init iter
-numMessages = -1 # sets how many loops to do, -1 is inifinite
-pauseTime = 0.1  # in seconds, sets rate at which client polls server
-
-# set scope for determining rolling average response time
-avScope = 100
-
-# initilise list used for calculating average response time
-averageTimeList = []
-
-# highest and lowest response times
-high = 0
-low = 1
-
-# error counts
-errors = 0
 
 # output function
 def output (data, time):
@@ -161,51 +132,83 @@ def graphMachine():
 
 # main
 
+def main():
 
-s.send(bytes(ID, 'UTF-8'))
-data = s.recv(BUFFER_SIZE)
-UDP_PORT = int(data)
-print(UDP_PORT)
 
-usock = socket.socket(socket.AF_INET, # Internet
+    # connect to server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((SRV_IP, TCP_PORT))
+    s.settimeout(2.0)
+
+    # invoke curses
+    win = curses.initscr()
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    win.nodelay(1)
+
+    iter = 1            # init iter
+    numMessages = -1 # sets how many loops to do, -1 is inifinite
+    pauseTime = 0.1  # in seconds, sets rate at which client polls server
+
+    # set scope for determining rolling average response time
+    avScope = 100
+
+    # initilise list used for calculating average response time
+    averageTimeList = []
+
+    # highest and lowest response times
+    high = 0
+    low = 1
+
+    # error counts
+    errors = 0
+
+
+    s.send(bytes(ID, 'UTF-8'))
+    data = s.recv(BUFFER_SIZE)
+    UDP_PORT = int(data)
+    print(UDP_PORT)
+
+    usock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
-while iter != numMessages:
-    # time how long it takes to get a response after send a message to the server
+    while iter != numMessages:
+        # time how long it takes to get a response after send a message to the server
     
-    start = timer()
-    usock.sendto(bytes(str(iter), 'UTF-8'), (SRV_IP, UDP_PORT))
+        start = timer()
+        usock.sendto(bytes(str(iter), 'UTF-8'), (SRV_IP, UDP_PORT))
     
-    # try to receive a response packet from server
-    try:
-        data = s.recv(BUFFER_SIZE)
-        end = timer()
-    # if no response in defined timeout, handle accordingly
-    except socket.timeout:
-        end = timer()
-        data = b'0'
-    
-    if data.decode('UTF-8') == str(iter):
-        output(data, (end - start)) 
-    else:
-        output(-1, -1)
-        errors += 1
-        iter -= 1
-    
-    # write output to cli
-    
-    iter += 1
-    sleep(pauseTime)
+        # try to receive a response packet from server
+        try:
+            data = s.recv(BUFFER_SIZE)
+            end = timer()
+        # if no response in defined timeout, handle accordingly
+        except socket.timeout:
+            end = timer()
+            data = b'0'
+        
+        if data.decode('UTF-8') == str(iter):
+            output(data, (end - start)) 
+        else:
+            output(-1, -1)
+            errors += 1
+            iter -= 1
+        
+        # write output to cli
+        
+        iter += 1
+        sleep(pauseTime)
 
-usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
-# close connection to server
-usock.close()
-s.close()
+    usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
+    # close connection to server
+    usock.close()
+    s.close()
 
-print ("Closed connection.")
+    print ("Closed connection.")
 
-# close curses
-curses.endwin()
+    # close curses
+    curses.endwin()
 
-
-    
+if __name__ == "__main__":
+    main()
