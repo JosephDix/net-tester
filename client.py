@@ -1,46 +1,16 @@
 #!usr/bin/env python
 
-import curses
+#import curses
 import socket
 import sys
 from timeit import default_timer as timer
 from time import sleep
 
 # set up tcp connection settings
-SRV_IP = '127.0.0.1' #change this
+SRV_IP = "127.0.0.1" #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
-
 ID = "Test"
-
-# connect to server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((SRV_IP, TCP_PORT))
-s.settimeout(2.0)
-
-# invoke curses
-win = curses.initscr()
-curses.start_color()
-curses.use_default_colors()
-curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-win.nodelay(1)
-
-iter = 1            # init iter
-numMessages = -1 # sets how many loops to do, -1 is inifinite
-pauseTime = 0.1  # in seconds, sets rate at which client polls server
-
-# set scope for determining rolling average response time
-avScope = 100
-
-# initilise list used for calculating average response time
-averageTimeList = []
-
-# highest and lowest response times
-high = 0
-low = 1
-
-# error counts
-errors = 0
 
 # output function
 def output (data, time):
@@ -54,25 +24,25 @@ def output (data, time):
         highest = highestRes(time)
         lowest = lowestRes(time)
         graphMachine()
-        message = data.decode('UTF-8')
+        message = data.decode("UTF-8")
     else:
         err = -1
         averageMachine(err)
         graphMachine()
-        message = 'error'
-        response = 'error'
+        message = "error"
+        response = "error"
         highest = str(high)
         lowest = str(low)
     
     # write infor to cli
     win.addstr("\n")
-    win.addstr("Connected to: " + SRV_IP + "\n")
-    win.addstr("Message num: " + message + "\n")
-    win.addstr("Response time: " + str(time) + "\n")
-    win.addstr("Average: " + response + "\n")
-    win.addstr("Highest: " + highest + "\n")
-    win.addstr("Lowest: " + lowest + "\n")
-    win.addstr("Errors: " + str(errors) + "\n")
+    win.addstr("Connected to: %s\n" % SRV_IP)
+    win.addstr("Message num: %s\n" % message)
+    win.addstr("Response time: %s\n" % str(time))
+    win.addstr("Average: %s\n" % response)
+    win.addstr("Highest: %s\n" % highest)
+    win.addstr("Lowest: %s\n" % lowest)
+    win.addstr("Errors: %s\n" % str(errors))
     win.addstr("\n")
     win.addstr("Press ESC to stop.\n")
     win.refresh()
@@ -85,7 +55,6 @@ def output (data, time):
 # get the rolling average time for a response
 def averageMachine (time):
     time = float("%.6f"%time)
-    
     
     if len(averageTimeList) <= avScope:
         averageTimeList.append(time)
@@ -116,7 +85,7 @@ def graphMachine():
     # create 2D list type object
     graph = []
     for i in range(0,11):
-        graph.append([' '] * len(averageTimeList))
+        graph.append([" "] * len(averageTimeList))
         
     # populate 2D list with plot points for graph"
     count=0  
@@ -128,15 +97,14 @@ def graphMachine():
             temp = 10
         
         if i != -1:
-            graph[10-temp][count] = '*'
+            graph[10-temp][count] = "*"
         else: 
            for i in range(0,11):
-              graph[i][count] = '#'
+              graph[i][count] = "#"
         
         count += 1
     
     # generate graph cli output
-    
     win.addstr("Response time in ms.\n\n")
     count=10    
     for row in graph:
@@ -146,7 +114,7 @@ def graphMachine():
             win.addstr(" " + str(count) + "0|")
             
         for col in row:
-            if col != '#':
+            if col != "#":
                 win.addstr(str(col))
             else:
                 win.addstr(str(col), curses.color_pair(1))
@@ -160,52 +128,79 @@ def graphMachine():
     win.addstr("\n")
 
 # main
+def main():
+    # connect to server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((SRV_IP, TCP_PORT))
+    s.settimeout(2.0)
 
+    # invoke curses
+    win = curses.initscr()
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    win.nodelay(1)
 
-s.send(bytes(ID, 'UTF-8'))
-data = s.recv(BUFFER_SIZE)
-UDP_PORT = int(data)
-print(UDP_PORT)
+    iter = 1            # init iter
+    numMessages = -1 # sets how many loops to do, -1 is inifinite
+    pauseTime = 0.1  # in seconds, sets rate at which client polls server
 
-usock = socket.socket(socket.AF_INET, # Internet
+    # set scope for determining rolling average response time
+    avScope = 100
+
+    # initilise list used for calculating average response time
+    averageTimeList = []
+
+    # highest and lowest response times
+    high = 0
+    low = 1
+
+    # error counts
+    errors = 0
+
+    s.send(bytes(ID, "UTF-8"))
+    data = s.recv(BUFFER_SIZE)
+    UDP_PORT = int(data)
+    print(UDP_PORT)
+
+    usock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
-while iter != numMessages:
-    # time how long it takes to get a response after send a message to the server
+    while iter != numMessages:
+        # time how long it takes to get a response after send a message to the server
     
-    start = timer()
-    usock.sendto(bytes(str(iter), 'UTF-8'), (SRV_IP, UDP_PORT))
+        start = timer()
+        usock.sendto(bytes(str(iter), "UTF-8"), (SRV_IP, UDP_PORT))
     
-    # try to receive a response packet from server
-    try:
-        data = s.recv(BUFFER_SIZE)
-        end = timer()
-    # if no response in defined timeout, handle accordingly
-    except socket.timeout:
-        end = timer()
-        data = b'0'
-    
-    if data.decode('UTF-8') == str(iter):
-        output(data, (end - start)) 
-    else:
-        output(-1, -1)
-        errors += 1
-        iter -= 1
-    
-    # write output to cli
-    
-    iter += 1
-    sleep(pauseTime)
+        # try to receive a response packet from server
+        try:
+            data = s.recv(BUFFER_SIZE)
+            end = timer()
+        # if no response in defined timeout, handle accordingly
+        except socket.timeout:
+            end = timer()
+            data = b'0'
 
-usock.sendto(bytes("CLOSE", 'UTF-8'), (SRV_IP, UDP_PORT))      
-# close connection to server
-usock.close()
-s.close()
+        # write output to cli
+        if data.decode("UTF-8") == str(iter):
+            output(data, (end - start)) 
+        else:
+            output(-1, -1)
+            errors += 1
+            iter -= 1
+        
+        iter += 1
+        sleep(pauseTime)
 
-print ("Closed connection.")
+    usock.sendto(bytes("CLOSE", "UTF-8"), (SRV_IP, UDP_PORT))      
+    # close connection to server
+    usock.close()
+    s.close()
 
-# close curses
-curses.endwin()
+    print ("Closed connection.")
 
+    # close curses
+    curses.endwin()
 
-    
+if __name__ == "__main__":
+    main()
