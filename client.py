@@ -10,7 +10,6 @@ from time import sleep
 SRV_IP = "127.0.0.1" #change this
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
-
 ID = "Test"
 
 # output function
@@ -56,7 +55,6 @@ def output (data, time):
 # get the rolling average time for a response
 def averageMachine (time):
     time = float("%.6f"%time)
-    
     
     if len(averageTimeList) <= avScope:
         averageTimeList.append(time)
@@ -107,7 +105,6 @@ def graphMachine():
         count += 1
     
     # generate graph cli output
-    
     win.addstr("Response time in ms.\n\n")
     count=10    
     for row in graph:
@@ -131,10 +128,7 @@ def graphMachine():
     win.addstr("\n")
 
 # main
-
 def main():
-
-
     # connect to server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SRV_IP, TCP_PORT))
@@ -164,7 +158,6 @@ def main():
     # error counts
     errors = 0
 
-
     s.send(bytes(ID, "UTF-8"))
     data = s.recv(BUFFER_SIZE)
     UDP_PORT = int(data)
@@ -187,15 +180,14 @@ def main():
         except socket.timeout:
             end = timer()
             data = b'0'
-        
+
+        # write output to cli
         if data.decode("UTF-8") == str(iter):
             output(data, (end - start)) 
         else:
             output(-1, -1)
             errors += 1
             iter -= 1
-        
-        # write output to cli
         
         iter += 1
         sleep(pauseTime)
