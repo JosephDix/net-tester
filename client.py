@@ -127,8 +127,24 @@ def graphMachine():
         win.addstr("-")
     win.addstr("\n")
 
+def handle_command_args():
+    for arg in sys.argv[1:]:
+        try:
+            param, val = arg.split('=')
+            if param.lower() == 'server':
+                SRV_IP = val
+            elif param.lower() == 'port':
+                TCP_PORT = val
+            elif param.lower() == 'bufsize':
+                BUFFER_SIZE = val
+            elif param.lower() == 'id':
+                ID = val
+        except:
+            pass
+
 # main
 def main():
+    handle_command_args()
     # connect to server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SRV_IP, TCP_PORT))
