@@ -1,6 +1,6 @@
 #!usr/bin/env python
 
-#import curses
+import curses
 import socket
 import sys
 from timeit import default_timer as timer
