@@ -9,6 +9,21 @@ TCP_IP = '0.0.0.0'
 TCP_PORT = 5005
 BUFFER_SIZE = 20
 
+def handle_command_args():
+    for arg in sys.argv[1:]:
+        try:
+            param, val = arg.split('=')
+            if param.lower() == 'udp_ip':
+                UDP_IP = val
+            elif param.lower() == 'tcp_ip':
+                TCP_IP = val
+            elif param.lower() == 'bufsize':
+                BUFFER_SIZE = val
+            elif param.lower() == 'tcp_port':
+                TCP_PORT = val
+        except:
+            pass
+
 # Multithreaded Python server : TCP Server Socket Thread Pool
 class ClientThread(Thread):
 
@@ -39,6 +54,8 @@ class ClientThread(Thread):
         self.uconn.close()
         self.tconn.close()
         print ("Connection from " + self.ip + ":" + str(self.port) + " closed.")
+
+handle_command_args()
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
